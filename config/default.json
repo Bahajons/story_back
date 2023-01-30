@@ -1,0 +1,4 @@
+{
+  "jwtPrivateKey": "!@#$%^&*(BuSecret",
+  "db": "mongodb+srv://chatapp:AA6343355@cluster0.rzyqkb1.mongodb.net/?retryWrites=true&w=majority"
+}
