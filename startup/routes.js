@@ -8,19 +8,16 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const cors_middle = require('../middleware/cors_middle')
-
+const reset_password=require('../routes/reset_password')
 
 module.exports = function (app) {
     app.use(express.urlencoded({ extended: true }))
     app.use(cors_middle)
-    // app.use(function (req, res, next) {
-    //     res.header('Access-Control-Allow-Origin', '*')
-    //     res.header('Access-Control-Allow-Headers', 'Authorization, Origin,token, X-Requested-With, Content-Type, Accept')
-    //     next()
-    // })
 
+    app.use(express.json());
     app.use('/api/register', user)
     app.use('/api/login', login)
+    app.use('/api/reset', reset_password)
     app.use('/api/profile', profile)
     app.use('/api/news', news)
     app.use('/api/image', image)
@@ -30,6 +27,5 @@ module.exports = function (app) {
     
     app.use(bodyParser.urlencoded({ extended: false }))
     app.use(bodyParser.json())
-    app.use(express.json());
     mongoose.set('strictQuery', false);
 }
