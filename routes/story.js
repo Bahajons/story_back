@@ -1,17 +1,17 @@
-const imgModel = require('../models/image')
 const Story = require('../models/story')
 const router = require('express').Router()
 const fs = require('fs')
 const multer = require('multer');
 const path = require('path');
 const auth = require('../middleware/auth');
+const Joi = require('joi');
 
 
 // ========get all======
 router.get('/', async (req, res) => {
   const data = await Story.find()
   if (data) {
-    res.json(data)
+    return res.send(data)
   }
 });
 // ======getone====
@@ -22,10 +22,12 @@ router.get('/one/:id', async (req, res) => {
     const new_one = await Story.findById({ _id: id })
     return res.send(new_one)
   }
-  res.send('You should give id')
+  return res.send('You should give id')
 });
 
 
+
+// upload image 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads')
@@ -34,32 +36,28 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + '-' + file.originalname)
   }
 });
-
 const upload = multer({ storage: storage });
+
 
 // ====post=====
 router.post('/', auth, upload.single('image'), async (req, res, next) => {
+  const { name_book, written_by, age_for, time_read, youtube_link, telegram_link, short_descr, full_descr } = req.body
+  const story = new Story()
+  story.name_book = name_book;
+  story.written_by = written_by;
+  story.age_for = age_for;
+  story.time_read = time_read;
+  story.youtube_link = youtube_link
+  story.telegram_link = telegram_link
+  story.short_descr = short_descr
+  story.full_descr = full_descr
 
-  console.log(req)
-
-  let obj = {
-    img: {
-      data: fs.readFileSync(path.join('uploads/' + req.file.filename)),
-      contentType: ['image/png', 'image/jpg', 'image/jpeg', 'image/bmp'],
-      url: ('api/story/' + req.file.filename)
-    },
-    name_book: req.body.name_book,
-    written_by: req.body.written_by,
-    age_for: req.body.age_for,
-    time_read: req.body.time_read,
-    youtube_link: req.body.youtube_link,
-    telegram_link: req.body.telegram_link,
-    short_descr: req.body.short_descr,
-    full_descr: req.body.full_descr
+  if (req.file) {
+    story.img = ('api/story/' + req.file.filename)
   }
-  const story = new Story(obj)
-  const story_result = await story.save()
-  res.send(story_result)
+  await story.save((err, result) => {
+    return res.status(201).send(result)
+  })
 
 });
 
@@ -75,81 +73,73 @@ const update_storage = multer.diskStorage({
 });
 
 function delete_image(name) {
-  filePath = `uploads/${name}`;
-  if (filePath) {
-    fs.unlinkSync(filePath);
+  if (name) {
+    console.log(name);
+    filePath = `uploads/${name}`;
+    if (filePath) {
+      fs.unlinkSync(filePath);
+    }
   }
 }
 
 const update_upload = multer({ storage: update_storage });
+
+
 // ===============put========
-router.put('/', auth, update_upload.single('image'), async (req, res, next) => {
+router.put('/:id', update_upload.single('image'), async (req, res, next) => {
+  const { name_book, written_by, age_for, time_read, youtube_link, telegram_link, short_descr, full_descr } = req.body
+  const { id } = req.params
+  const filter = { _id: id }; // specify the filter to find the document to update
+  let update = req.body; // get the data to update from the request body
 
-  const id = req.body._id
-  console.log(req.body);
-
-  if (!id) {
-    res.send('There is not id')
+  if (req.file) {
+    const image = await Story.findById({ _id: id })
+    delete_image(image?.img?.split('/')[2])
+    update = { ...update, img: `api/story/${req.file.filename}` }
   }
-  else {
-    const story = await Story.findOne({ _id: id })
-    if (!story) {
-      res.send('Id is not available')
-    }
+  // set the options to return the updated document and enable validators
+  const options = { new: true, runValidators: true };
 
-    if (req.file) {
-      const story_one = await Story.findById({ _id: id })
-      delete_image(story_one?.img?.url?.split('/')[2])
-      let obj = {
-        img: {
-          data: fs.readFileSync(path.join('uploads/' + req.file.filename)),
-          contentType: ['image/png', 'image/jpg', 'image/jpeg', 'image/bmp'],
-          url: ('api/story/' + req.file.filename)
-        },
-        name_book: req.body.name_book,
-        written_by: req.body.written_by,
-        age_for: req.body.age_for,
-        time_read: req.body.time_read,
-        youtube_link: req.body.youtube_link,
-        telegram_link: req.body.telegram_link,
-        short_descr: req.body.short_descr,
-        full_descr: req.body.full_descr
+  Story.findOneAndUpdate(filter, update, options, (err, updateStory) => {
+    if (err) {
+      return res.status(500).send('Internal server error');
+    } else {
+      if (!updateStory) {
+        res.status(404).send('story not found');
+        return;
       }
-      const story_updated = await Story.findByIdAndUpdate(req.body._id, obj)
-      res.send(story_updated)
+      return res.send(updateStory);
     }
-    else {
-      let obj = {
-        img: {
-          url: `api/story/${req.body.url}`
-        },
-        name_book: req.body.name_book,
-        written_by: req.body.written_by,
-        age_for: req.body.age_for,
-        time_read: req.body.time_read,
-        youtube_link: req.body.youtube_link,
-        telegram_link: req.body.telegram_link,
-        short_descr: req.body.short_descr,
-        full_descr: req.body.full_descr
-      }
-      const story_updated = await Story.findByIdAndUpdate(req.body._id, obj)
-      res.send(story_updated)
-    }
-  }
+  });
 })
-
 
 // =======delete========
-router.delete('/:id', auth, async (req, res,) => {
+router.delete('/:id', async (req, res,) => {
 
-  const id = req.params.id
+  const { id } = req.params
+  const { error } = validate(id)
+  if (error) return res.send(error)
+
+  if (!id) return res.send('There is not id !')
+
   if (id) {
     const story_one = await Story.findById({ _id: id })
-    delete_image(story_one?.img?.url?.split('/')[2])
+    if (!story_one) return res.status(400).send('Story did not find with this id !')
 
+    delete_image(story_one?.img?.url?.split('/')[2])
     const story = await Story.findByIdAndRemove({ _id: id })
-    res.send(story)
+    return res.send('Story deleted successfully')
   }
 })
+
+
+function validate(id) {
+
+  let schema = Joi.object({
+    id: Joi.number().integer().min(3).max(35).required()
+  })
+  return schema.validate({ id });
+}
+
 
 module.exports = router;

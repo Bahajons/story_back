@@ -1,4 +1,5 @@
 {
   "jwtPrivateKey": "!@#$%^&*(BuSecret",
-  "db": "mongodb+srv://chatapp:AA6343355@cluster0.rzyqkb1.mongodb.net/?retryWrites=true&w=majority"
+  "db": "mongodb+srv://chatapp:AA6343355@cluster0.rzyqkb1.mongodb.net/?retryWrites=true&w=majority",
+  "front_host": "http://localhost:3000"
 }

@@ -9,13 +9,13 @@ const sendEmail = async (email, subject, text) => {
             secure: false,
             requireTLS: true,
             auth: {
-                user: "storywebsite04@gmail.com",
-                pass: "wbtidjlmqglaponz",
+                user: "bahajonsroziyev@gmail.com",
+                pass: "lnpkrpkmfbdqacul",
             }
         });
 
         await transporter.sendMail({
-            from: "storywebsite04@gmail.com",
+            from: "bahajonsroziyev@gmail.com",
             to: email,
             subject: subject,
             text: `http://${text}`,

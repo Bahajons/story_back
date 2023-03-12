@@ -1,37 +1,28 @@
 const mongoose = require('mongoose');
 
 const storySchema = new mongoose.Schema({
-  img:
-  {
-    data: Buffer,
-    contentType: [String],
-    url: String
+  img: {
+    type: String
   },
   name_book: {
     type: String,
-    // require: true
   },
   written_by: {
     type: String,
-    // require: true
   },
   time_read: {
     type: String,
-    // require:true
   },
   age_for: {
     type: String,
-    // require: true
   },
   youtube_link: String,
   telegram_link: String,
   short_descr: {
     type: String,
-    // require: true
   },
   full_descr: {
     type: String,
-    // require: true
   }
 });
 

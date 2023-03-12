@@ -1,36 +1,33 @@
 const express = require('express');
 const Joi = require('joi');
 const router = express.Router()
-const { Users } = require('../models/user');
-const auth = require("../middleware/auth")
+const { Users } = require('../../models/user');
+const auth = require("../../middleware/auth")
 
 
 router.get('/', auth, async (req, res) => {
   const user = await Users.findById(req.user._id).select('-password')
-  res.send(user)
+  return res.send(user)
 })
 
 router.put('/', auth, async (req, res) => {
   const { error } = validateUsers(req.body);
+  const user = req.body
   if (error)
     return res.status(400).send(error.details);
   try {
-    let user = await Users.findByIdAndUpdate(
-      req.body._id,
-      {
-        name: req.body.name,
-        surname: req.body.surname,
-        username: req.body.username,
-        email: req.body.email
-      }, { new: true }
+    let user_one = await Users.findByIdAndUpdate(
+      { _id: user._id },
+      user,
+      { new: true }
     )
-    res.send(user)
+    const date = { user: _.pick(user_one, ['_id', 'name', 'surname', 'email']) }
+    
+    return res.send(date)
   } catch (error) {
     console.log(error);
-    res.send("Email or username already existed")
+    return res.send("Email or username already existed")
   }
-
-
 })
 
 function validateUsers(user) {
