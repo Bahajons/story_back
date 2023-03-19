@@ -1,32 +1,80 @@
 const mongoose = require('mongoose');
 
-const storySchema = new mongoose.Schema({
-  img: {
-    type: String
+const like = new mongoose.Schema({
+  count_like: {
+    type: Number,
+    default: 0
   },
-  name_book: {
-    type: String,
+  count_dislike: {
+    type: Number,
+    default: 0
   },
-  written_by: {
-    type: String,
+  liked: {
+    type: Boolean,
+    default: false
   },
-  time_read: {
-    type: String,
+  disliked: {
+    type: Boolean,
+    default: false
   },
-  age_for: {
-    type: String,
-  },
-  youtube_link: String,
-  telegram_link: String,
-  short_descr: {
-    type: String,
-  },
-  full_descr: {
-    type: String,
+  deviceId: {
+    type: [String],
+    default: [],
+    unique: true
   }
 });
 
-//Story is a model which has a schema storySchema
+
+const storySchema = new mongoose.Schema({
+  authorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Users'
+  },
+  img: {
+    type: String,
+    default: null
+  },
+  name_book: {
+    type: String,
+    default: null
+  },
+  written_by: {
+    type: String,
+    default: null
+  },
+  time_read: {
+    type: String,
+    default: null
+  },
+  age_for: {
+    type: String,
+    default: null
+  },
+  youtube_link: {
+    type: String,
+    default: null
+  },
+  telegram_link: {
+    type: String,
+    default: null
+  },
+  short_descr: {
+    type: String,
+    default: null
+  },
+  full_descr: {
+    type: String,
+    default: null
+  },
+  reactId: {
+    type: mongoose.Schema.Types.ObjectId,
+    default: null,
+    ref: 'Like',
+    require: true
+  }
+});
+
+
 
 const Story = new mongoose.model('Story', storySchema);
 

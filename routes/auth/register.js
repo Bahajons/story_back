@@ -23,12 +23,16 @@ router.post("/", async (req, res) => {
 		try {
 			let user_email = await Users.findOne({ email });
 			if (user_email)
-				return res.status(400).send("User with given email already exist!");
+				return res.status(400).send("This email already used");
+
+			let user_username = await Users.findOne({ username })
+			if (user_username)
+				return res.status(400).send('This username already used')
 
 			const salt = await bcrypt.genSalt()
 			const password1 = await bcrypt.hash(password, salt)
 			const verificationToken = crypto.randomBytes(32).toString("hex")
-			const user = await new Users({
+			const user = new Users({
 				name,
 				surname,
 				username,

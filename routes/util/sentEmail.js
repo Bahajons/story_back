@@ -9,8 +9,8 @@ const sendEmail = async (email, subject, text) => {
             secure: false,
             requireTLS: true,
             auth: {
-                user: "bahajonsroziyev@gmail.com",
-                pass: "lnpkrpkmfbdqacul",
+                user: "storywebsite04@gmail.com",
+                pass: "ipgkqjkhbeqxnpbq",
             }
         });
 
@@ -18,7 +18,7 @@ const sendEmail = async (email, subject, text) => {
             from: "bahajonsroziyev@gmail.com",
             to: email,
             subject: subject,
-            text: `http://${text}`,
+            text: `${text}`,
         });
 
         console.log("email sent sucessfully");

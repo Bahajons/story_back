@@ -5,12 +5,10 @@ const mongoose = require('mongoose')
 const _ = require('lodash')
 const bcrypt = require('bcrypt')
 const { Users } = require("../../models/user")
-const jwt = require('jsonwebtoken')
-const config = require('config')
 
 
 router.post('/', async (req, res) => {
-	console.log(req.headers.referer, 'dewewf');
+
 	const { error } = validateUsers(req.body);
 	const { email, password } = req.body
 	if (error)
@@ -18,11 +16,11 @@ router.post('/', async (req, res) => {
 
 	let user = await Users.findOne({ email })
 	if (!user)
-		return res.send('This email is not registered')
+		return res.status(400).send('This email is not registered')
 
 	const isValidPassword = await bcrypt.compare(password, user.password)
 	if (!isValidPassword)
-		return res.send('This password is incorrect')
+		return res.status(404).send('This password is incorrect')
 
 	const token = user.generateAuthToken();
 

@@ -4,11 +4,13 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const express = require("express");
-const { config } = require("process");
+const config = require('config')
 const router = express.Router();
 
 router.post("/", async (req, res) => {
+
   const { email } = req.body
+
   try {
     const schema = Joi.object({ email: Joi.string().email().required() });
 
@@ -20,16 +22,17 @@ router.post("/", async (req, res) => {
       return res.status(400).send("user with given email doesn't exist");
 
     const resetPassword = crypto.randomBytes(32).toString("hex")
-    await Users.updateOne(
-      { email },
+    await Users.updateOne({ email },
       { $set: { resetPassword } });
 
-    const message = `${config.get('front_host')}/reset_password/${user._id}/${resetPassword}`;
+    const host = config.get('front_host')
+    const message = `${host}/setpassword/${user._id}/${resetPassword}`;
+    console.log(config.get('front_host'));
     await sendEmail(user.email, "Password reset", message);
 
     res.send("password reset link sent to your email account");
   } catch (error) {
-    res.send("An error occured");
+    res.status(400).send(error);
     console.log(error);
   }
 });
@@ -37,14 +40,13 @@ router.post("/", async (req, res) => {
 router.post("/:id/:resetPassword", async (req, res) => {
   const { id, resetPassword } = req.params
   const { password } = req.body;
-
   try {
     const schema = Joi.object({ password: Joi.string().required() });
     const { error } = schema.validate(req.body);
 
     if (error) return res.status(400).send(error.details[0].message);
 
-    const user = await Users.findById({ id });
+    const user = await Users.findById({ _id: id });
 
     if (!user) return res.status(400).send("invalid link or expired");
 
@@ -61,13 +63,11 @@ router.post("/:id/:resetPassword", async (req, res) => {
       { _id: id },
       { $set: { password: new_password, resetPassword: null } })
 
-    res.send("password reset sucessfully.");
+    res.status(200).send("password reset sucessfully.");
   } catch (error) {
-    res.send(error);
+    res.status(400).send(error);
     console.log(error);
   }
 });
-
-
 
 module.exports = router;

@@ -9,12 +9,21 @@ const likeSchema = new mongoose.Schema({
 		type: Number,
 		default: 0
 	},
+	liked: {
+		type: Boolean,
+		default: false
+	},
+	disliked: {
+		type: Boolean,
+		default: false
+	},
 	deviceId: {
-		type: Array,
-		default: null
+		type: [String],
+		require: false
 	}
 });
 
 const Like = new mongoose.model('Like', likeSchema);
 
 module.exports = Like
+exports.likeSchema = likeSchema
