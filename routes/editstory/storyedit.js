@@ -22,15 +22,15 @@ router.get('/', auth, async (req, res) => {
 
 
 // ======get detail====
-router.get('/detail/:id', async (req, res) => {
+router.get('/detail/:id', auth, async (req, res) => {
 
 	const { id } = req.params
 
 	if (id) {
 		const detail = await Story.findById({ _id: id })
-		return res.send(detail)
+		return res.status(200).send(detail)
 	}
-	return res.send('You should give id')
+	return res.status(400).send('You should give id')
 });
 
 
@@ -141,10 +141,8 @@ router.put('/:id', update_upload.single('image'), async (req, res, next) => {
 router.delete('/:id', async (req, res,) => {
 
 	const { id } = req.params
-	const { error } = validate(id)
-	if (error) return res.send(error)
 
-	if (!id) return res.send('There is not id !')
+	if (!id) return res.status(400).send('There is not id !')
 
 	if (id) {
 		const story_one = await Story.findById({ _id: id })
@@ -157,13 +155,6 @@ router.delete('/:id', async (req, res,) => {
 })
 
 
-function validate(id) {
-
-	let schema = Joi.object({
-		id: Joi.number().integer().min(3).max(35).required()
-	})
-	return schema.validate({ id });
-}
 
 
 module.exports = router;

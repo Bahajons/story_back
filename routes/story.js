@@ -16,11 +16,11 @@ router.get('/', async (req, res) => {
     .select()
 
   if (data) {
-    return res.send(data)
+    return res.status(200).send(data)
   }
 });
 // ========get limit======
-router.get('/:limit', async (req, res) => {
+router.get('/limit/:limit', async (req, res) => {
   const { limit } = req.params
   const data = await Story
     .find()

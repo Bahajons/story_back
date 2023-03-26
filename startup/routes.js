@@ -21,8 +21,9 @@ module.exports = function (app) {
     app.use('/api/verify', verify)
     app.use('/api/reset', reset_password)
     app.use('/api/profile', profile)
-
+            // for user
     app.use('/api/story', story)
+            // for admin
     app.use('/api/admin/story', storyedit)
     app.use('/api/like', like)
     app.use('/api/image', express.static('uploads'))
